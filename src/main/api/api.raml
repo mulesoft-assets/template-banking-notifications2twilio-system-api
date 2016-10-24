@@ -1,0 +1,20 @@
+#%RAML 1.0
+title: System API
+version: v1.0
+types:
+  notification: !include dataTypes/Notification.raml
+
+/notifications:
+  displayName: Notifications
+  description: |
+    Working with notifications:
+    * Creating notifications
+  post:
+    description: |
+      Create a new Notification
+    body:
+      application/json:
+        type: notification
+        example: !include ./examples/post_notification_example.json
+    responses:
+      200:

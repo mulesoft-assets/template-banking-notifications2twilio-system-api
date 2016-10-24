@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:smtp="http://www.mulesoft.org/schema/mule/smtp" xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:twilio="http://www.mulesoft.org/schema/mule/twilio" xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xmlns:spring="http://www.springframework.org/schema/beans"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:context="http://www.springframework.org/schema/context"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/apikit http://www.mulesoft.org/schema/mule/apikit/current/mule-apikit.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-current.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+http://www.mulesoft.org/schema/mule/twilio http://www.mulesoft.org/schema/mule/twilio/current/mule-twilio.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.mulesoft.org/schema/mule/smtp http://www.mulesoft.org/schema/mule/smtp/current/mule-smtp.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+
+    <http:listener-config name="httpListenerConfig" host="0.0.0.0" port="${http.port}" doc:name="HTTP Listener Configuration"/>
+    <apikit:config name="apiConfig" raml="api.raml" consoleEnabled="false" doc:name="Router">
+        <apikit:flow-mapping resource="/notifications" action="post" content-type="application/json" flow-ref="post:/notifications:api-config"/>
+    </apikit:config>
+
+    <context:property-placeholder location="mule.${mule.env}.properties,common.properties" />
+    <twilio:config name="Twilio" accountSid="${twilio.account.sid}" authToken="${twilio.account.auth.token}" doc:name="Twilio">
+    <twilio:http-callback-config></twilio:http-callback-config>
+    </twilio:config>
+    <smtp:gmail-connector name="Gmail" validateConnections="true" doc:name="Gmail"/>
+    <validation:config name="Validation_Configuration" doc:name="Validation Configuration"/>
+
+    <flow name="api-main">
+        <http:listener config-ref="httpListenerConfig" path="/api/*" doc:name="HTTP"/>
+        <apikit:router config-ref="apiConfig" doc:name="APIkit Router"/>
+        <exception-strategy ref="apiKitGlobalExceptionMapping" doc:name="Reference Exception Strategy"/>
+    </flow>
+    <flow name="post:/notifications:api-config">
+        <dw:transform-message doc:name="Store input JSON as Map into inputData variable">
+            <dw:set-variable variableName="inputData"><![CDATA[%dw 1.0
+%output application/java
+---
+payload]]></dw:set-variable>
+        </dw:transform-message>
+        <choice doc:name="Route request according to the payload type">
+            <when expression="#[flowVars.inputData.type.equals(&quot;SMS&quot;)]">
+                <validation:all config-ref="Validation_Configuration" doc:name="Validation">
+                    <validation:validations>
+                        <validation:matches-regex value="#[flowVars.inputData.recipient]" regex="^\+?\d{1,}$" message="Recipient doesn't contain valid phone number."/>
+                    </validation:validations>
+                </validation:all>
+                <flow-ref name="handleSMStypeSub_Flow" doc:name="handleSMStypeSub_Flow"/>
+            </when>
+            <when expression="#[flowVars.inputData.type.equals(&quot;EMAIL&quot;)]">
+                <validation:all config-ref="Validation_Configuration" doc:name="Validation">
+                    <validation:validations>
+                        <validation:is-email email="#[flowVars.inputData.recipient]" message="Recipient doesn't contain valid email adress."/>
+                    </validation:validations>
+                </validation:all>
+                <flow-ref name="handleEMAILtypeSub_Flow" doc:name="handleEMAILtypeSub_Flow"/>
+            </when>
+            <otherwise>
+                <logger message="Log 'Type was not defined'" level="INFO" doc:name="Log 'Type was not defined'"/>
+            </otherwise>
+        </choice>
+    </flow>
+
+    <flow name="api-console">
+        <http:listener config-ref="httpListenerConfig" path="/console/*" doc:name="HTTP"/>
+        <apikit:console config-ref="apiConfig" doc:name="APIkit Console"/>
+    </flow>
+    <sub-flow name="handleSMStypeSub_Flow">
+        <dw:transform-message doc:name="Prepare SMS body">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+(("Subject:" ++ flowVars.inputData.subject ++ "\n") when (flowVars.inputData.subject?) otherwise "")
+++ (("Priority:" ++ flowVars.inputData.priority ++ "\n") when (flowVars.inputData.priority?) otherwise "")
+++ ("Message:" ++ flowVars.inputData.message when (flowVars.inputData.message?) otherwise "")]]></dw:set-payload>
+        </dw:transform-message>
+        <twilio:send-sms-message config-ref="Twilio" accountSid="${twilio.account.sid}" body="#[payload]" from="${twilio.phone.number}" to="#[flowVars.inputData.recipient]" doc:name="Send SMS by Twilio"/>
+    </sub-flow>
+    <sub-flow name="handleEMAILtypeSub_Flow">
+        <dw:transform-message doc:name="Prepare EMAIL body">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+(("Priority:" ++ flowVars.inputData.priority ++ "\n") when (flowVars.inputData.priority?) otherwise "")
+++ ("Message:" ++ flowVars.inputData.message when (flowVars.inputData.message?) otherwise "")]]></dw:set-payload>
+        </dw:transform-message>
+        <smtp:outbound-endpoint host="${smtp.host}" port="${smtp.port}" user="${smtp.user}" password="${smtp.password}" connector-ref="Gmail" to="#[flowVars.inputData.recipient]" from="${smtp.user}" subject="#[flowVars.inputData.subject]" responseTimeout="10000" doc:name="Send EMAIL by SMTP"/>
+    </sub-flow>
+
+    <apikit:mapping-exception-strategy name="apiKitGlobalExceptionMapping">
+        <apikit:mapping statusCode="422">
+            <apikit:exception value="org.mule.extension.validation.api.MultipleValidationException"/>
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;#[exception.getMessage()]&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="404">
+            <apikit:exception value="org.mule.module.apikit.exception.NotFoundException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Resource not found&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="405">
+            <apikit:exception value="org.mule.module.apikit.exception.MethodNotAllowedException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Method not allowed&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="415">
+            <apikit:exception value="org.mule.module.apikit.exception.UnsupportedMediaTypeException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Unsupported media type&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="406">
+            <apikit:exception value="org.mule.module.apikit.exception.NotAcceptableException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Not acceptable&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="400">
+            <apikit:exception value="org.mule.module.apikit.exception.BadRequestException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Bad request&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+    </apikit:mapping-exception-strategy>
+</mule>
