@@ -59,7 +59,7 @@ payload]]></dw:set-variable>
                         <validation:matches-regex value="#[flowVars.inputData.recipient]" regex="^\+?\d{1,}$" message="Recipient doesn't contain valid phone number."/>
                     </validation:validations>
                 </validation:all>
-                <flow-ref name="handleSMStypeSub_Flow" doc:name="handleSMStypeSub_Flow"/>
+                <flow-ref name="handleSMS" doc:name="handleSMS"/>
             </when>
             <when expression="#[flowVars.inputData.type.equals(&quot;EMAIL&quot;)]">
                 <validation:all config-ref="Validation_Configuration" doc:name="Validation">
@@ -67,7 +67,7 @@ payload]]></dw:set-variable>
                         <validation:is-email email="#[flowVars.inputData.recipient]" message="Recipient doesn't contain valid email adress."/>
                     </validation:validations>
                 </validation:all>
-                <flow-ref name="handleEMAILtypeSub_Flow" doc:name="handleEMAILtypeSub_Flow"/>
+                <flow-ref name="handleEMAIL" doc:name="handleEMAIL"/>
             </when>
             <otherwise>
                 <logger message="Log 'Type was not defined'" level="INFO" doc:name="Log 'Type was not defined'"/>
@@ -76,7 +76,7 @@ payload]]></dw:set-variable>
     </flow>
 
     
-    <sub-flow name="handleSMStypeSub_Flow">
+    <sub-flow name="handleSMS">
         <dw:transform-message doc:name="Prepare SMS body">
             <dw:set-payload><![CDATA[%dw 1.0
 %output application/java
@@ -87,7 +87,7 @@ payload]]></dw:set-variable>
         </dw:transform-message>
         <twilio:send-sms-message config-ref="Twilio" accountSid="${twilio.account.sid}" body="#[payload]" from="${twilio.phone.number}" to="#[flowVars.inputData.recipient]" doc:name="Send SMS by Twilio"/>
     </sub-flow>
-    <sub-flow name="handleEMAILtypeSub_Flow">
+    <sub-flow name="handleEMAIL">
         <dw:transform-message doc:name="Prepare EMAIL body">
             <dw:set-payload><![CDATA[%dw 1.0
 %output application/java
