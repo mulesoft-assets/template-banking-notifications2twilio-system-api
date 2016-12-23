@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:smtp="http://www.mulesoft.org/schema/mule/smtp" xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:twilio="http://www.mulesoft.org/schema/mule/twilio" xmlns="http://www.mulesoft.org/schema/mule/core"
-      xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit"
-      xmlns:http="http://www.mulesoft.org/schema/mule/http"
-      xmlns:spring="http://www.springframework.org/schema/beans"
-      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xmlns:context="http://www.springframework.org/schema/context"
-      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" 
+	xmlns:smtp="http://www.mulesoft.org/schema/mule/smtp" 
+	xmlns:validation="http://www.mulesoft.org/schema/mule/validation" 
+	xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" 
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" 
+	xmlns:twilio="http://www.mulesoft.org/schema/mule/twilio" 
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+    xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit"
+    xmlns:http="http://www.mulesoft.org/schema/mule/http"
+    xmlns:spring="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/apikit http://www.mulesoft.org/schema/mule/apikit/current/mule-apikit.xsd
 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-current.xsd
@@ -33,6 +39,12 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
         <apikit:router config-ref="apiConfig" doc:name="APIkit Router"/>
         <exception-strategy ref="apiKitGlobalExceptionMapping" doc:name="Reference Exception Strategy"/>
     </flow>
+    
+    <flow name="api-console">
+        <http:listener config-ref="httpListenerConfig" path="/console/*" doc:name="HTTP"/>
+        <apikit:console config-ref="apiConfig" doc:name="APIkit Console"/>
+    </flow>
+    
     <flow name="post:/notifications:api-config">
         <dw:transform-message doc:name="Store input JSON as Map into inputData variable">
             <dw:set-variable variableName="inputData"><![CDATA[%dw 1.0
@@ -63,18 +75,15 @@ payload]]></dw:set-variable>
         </choice>
     </flow>
 
-    <flow name="api-console">
-        <http:listener config-ref="httpListenerConfig" path="/console/*" doc:name="HTTP"/>
-        <apikit:console config-ref="apiConfig" doc:name="APIkit Console"/>
-    </flow>
+    
     <sub-flow name="handleSMStypeSub_Flow">
         <dw:transform-message doc:name="Prepare SMS body">
             <dw:set-payload><![CDATA[%dw 1.0
 %output application/java
 ---
-(("Subject:" ++ flowVars.inputData.subject ++ "\n") when (flowVars.inputData.subject?) otherwise "")
-++ (("Priority:" ++ flowVars.inputData.priority ++ "\n") when (flowVars.inputData.priority?) otherwise "")
-++ ("Message:" ++ flowVars.inputData.message when (flowVars.inputData.message?) otherwise "")]]></dw:set-payload>
+(("Sub:" ++ flowVars.inputData.subject ++ "\n") when (flowVars.inputData.subject?) otherwise "")
+++ (("Prio:" ++ flowVars.inputData.priority ++ "\n") when (flowVars.inputData.priority?) otherwise "")
+++ ("Msg:" ++ flowVars.inputData.message when (flowVars.inputData.message?) otherwise "")]]></dw:set-payload>
         </dw:transform-message>
         <twilio:send-sms-message config-ref="Twilio" accountSid="${twilio.account.sid}" body="#[payload]" from="${twilio.phone.number}" to="#[flowVars.inputData.recipient]" doc:name="Send SMS by Twilio"/>
     </sub-flow>
