@@ -1,0 +1,35 @@
+#%RAML 1.0
+title: Banking_Notifications_System_API
+version: v2.0
+baseUri: http://localhost:8081/api
+
+types: 
+  Notification:
+    type: object
+    properties:
+      id?: string | integer
+      type:
+        type: string
+        enum: [SMS, EMAIL]
+      message?: string | integer
+      subject?: string | integer
+      priority:
+        type: string
+        enum: [ URGENT, CRITICAL, MAJOR, MINOR, TRIVIAL]
+        required: false
+      recipient: string | integer
+
+/notifications:
+  displayName: Notifications
+  description: |
+    Working with notifications:
+    * Creating notifications
+  post:
+    description: |
+      Create a new Notification
+    body:
+      application/json:
+        type: Notification
+        example: !include ./examples/post_notification_example.raml
+    responses:
+      200:
