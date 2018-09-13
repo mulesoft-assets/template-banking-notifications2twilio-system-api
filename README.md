@@ -10,7 +10,6 @@
 	* [Running on Mule ESB stand alone](#runonmuleesbstandalone)
 	* [Running on CloudHub](#runoncloudhub)
 	* [Deploying your Anypoint Template on CloudHub](#deployingyouranypointtemplateoncloudhub)
-	* [Applying policies on CloudHub](#applyingpolicies)
 	* [Properties to be configured (With examples)](#propertiestobeconfigured)
 
 # License Agreement <a name="licenseagreement"/>
@@ -23,7 +22,7 @@ This API allows to send notifications via e-mail as well as text messages via Tw
 
 # Considerations <a name="considerations"/>
 
-To make this Anypoint Template run, there are certain preconditions that must be considered. **Failling to do so could lead to unexpected behavior of the template.**
+To make this Anypoint Template run, there are certain preconditions that must be considered. **Failing to do so could lead to unexpected behavior of the template.**
 
 ## APIs security considerations <a name="apissecurityconsiderations"/>
 This API is meant to be deployed to CloudHub and managed using the API Platform Manager.
@@ -45,12 +44,10 @@ First thing to know if you are a newcomer to Mule is where to get the tools.
 ### Importing an Anypoint Template into Studio
 Anypoint Studio offers several ways to import a project into the workspace, for instance: 
 
-+ Anypoint Studio generated Deployable Archive (.zip)
-+ Anypoint Studio Project from External Location
-+ Maven-based Mule Project from pom.xml
-+ Mule ESB Configuration XML from External Location
++ Anypoint Studio Project from File System
++ Packaged mule application (.jar)
 
-You can find a detailed description on how to do so in this [Documentation Page](https://docs.mulesoft.com/anypoint-studio/v/6/importing-and-exporting-in-studio).
+You can find a detailed description on how to do so in this [Documentation Page](http://www.mulesoft.org/documentation/display/current/Importing+and+Exporting+in+Studio).
 
 ### Running on Studio <a name="runonstudio"/>
 Once you have imported you Anypoint Template into Anypoint Studio you need to follow these steps to run it:
@@ -69,10 +66,7 @@ While [creating your application on CloudHub](https://docs.mulesoft.com/runtime-
 Follow other steps defined [here](#runonpremise) and once your app is all set and started, there is no need to do anything else.
 
 ### Deploying your Anypoint Template on CloudHub <a name="deployingyouranypointtemplateoncloudhub"/>
-Anypoint Studio provides you with really easy way to deploy your Template directly to CloudHub, for the specific steps to do so please check this [link](https://docs.mulesoft.com/mule-user-guide/v/3.8/deploying#DeployingMuleApplications-DeploytoCloudHub)
-
-### Applying policies on CloudHub <a name="applyingpolicies"/>
-When a Mule application is deployed using the Mule 3.8.2+ Runtime, the API Manager allows you to dynamically apply different policies that can be used for securing the application, among many other things. More information can be found in [API Manager policies documentation](https://docs.mulesoft.com/api-manager/using-policies)
+Mule Studio provides you with really easy way to deploy your Template directly to CloudHub, for the specific steps to do so please check this [link](http://www.mulesoft.org/documentation/display/current/Deploying+Mule+Applications#DeployingMuleApplications-DeploytoCloudHub)
 
 ## Properties to be configured (With examples) <a name="propertiestobeconfigured"/>
 In order to use this Mule Anypoint Template you need to configure properties (Credentials, configurations, etc.) either in properties file or in CloudHub as Environment Variables. 
@@ -83,7 +77,7 @@ Detailed list with examples:
 
 ### SMTP Services configuration
 + smtp.host `smtp.gmail.com`
-+ smtp.port `587`
++ smtp.port `465`
 + smtp.user `your_username`
 + smtp.password `your_password`
 
