@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:twilio-connector="http://www.mulesoft.org/schema/mule/twilio-connector"
+    xmlns:email="http://www.mulesoft.org/schema/mule/email"
+    xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
+    xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+    xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd
+http://www.mulesoft.org/schema/mule/twilio-connector http://www.mulesoft.org/schema/mule/twilio-connector/current/mule-twilio-connector.xsd">
+    <flow name="postNotificationsFlow" doc:id="a3758b7f-5820-4832-af84-60eb5baa2d04">
+        <ee:transform doc:name="Transform Message"
+            doc:id="11164c72-3c89-46f5-86b8-5d536085ccde">
+            <ee:message>
+            </ee:message>
+            <ee:variables>
+                <ee:set-variable variableName="inputData"><![CDATA[%dw 2.0
+output application/java
+---
+payload]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <choice doc:name="Choice"
+            doc:id="dbdef19dqwerd-97e5-46d1-a71f-3d5481e7e938">
+            <when expression="#[payload.'type'=='EMAIL']">
+                <flow-ref doc:name="Process Email"
+                    doc:id="cc61bfe0-469a-4dd4-9268-bce85182e546" name="processEmailSubflow" />
+            </when>
+            <when expression="#[payload.'type'=='SMS']">
+                <flow-ref doc:name="Process SMS"
+                    doc:id="4f6ed9f3-c136-4d6b-9e01-08d42f1ff694" name="processSMSSubflow" />
+            </when>
+            <otherwise>
+                <logger level="INFO" doc:name="Logger"
+                    doc:id="1ad28847-cfc4-40fa-9d94-8bd67ccc217b"
+                    message="Log 'Type was not defined'" />
+            </otherwise>
+        </choice>
+    </flow>
+    <sub-flow name="processEmailSubflow" doc:id="93241409-ede8-4f13-afd0-516fe10872d2">
+		<ee:transform doc:name="Prepare email body" doc:id="7251feaf-1db3-4131-999b-4c243eeb16a8">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+payload ++ "messageToSend" :
+(if (payload.priority?) ("Priority:" ++ payload.priority ++ "\n")  else "")
+++ (if (payload.message?) ("Message:" ++ payload.message) else "")
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<validation:is-email doc:name="Check recipient address" doc:id="2d54a90a-9339-40c1-a39b-6c627c5696e0" config-ref="Validation_Config" email="#[payload.recipient]" message="Recipient doesn't contain valid email adress." />
+		<email:send doc:name="Send email" doc:id="e74dc548-7f5f-4444-8d74-d241c4b09813" config-ref="Email_SMTP" fromAddress="${smtp.user}" subject="#[payload.subject]">
+			<email:to-addresses >
+				<email:to-address value="#[payload.recipient]" />
+			</email:to-addresses>
+			<email:body contentType="text/plain" >
+				<email:content ><![CDATA[#[payload.messageToSend]]]></email:content>
+			</email:body>
+		</email:send>        
+	</sub-flow>
+	<sub-flow name="processSMSSubflow" doc:id="6da6b60c-11a6-4814-9f58-decf45f78792" >
+		<validation:matches-regex doc:name="Matches regex" doc:id="e9249350-ad59-4369-9532-c6bd428648f5" config-ref="Validation_Config" value="#[payload.recipient]" regex="^\+?\d{1,}$" message="Recipient doesn't contain valid phone number."/>
+		<ee:transform doc:name="Transform Message" doc:id="b5303817-213d-4db1-b984-16fa167a101b">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	Body: (if (payload.subject?) ("Sub:" ++ payload.subject ++ "\n")  else "") ++ (if (payload.priority?) ("Prio:" ++ payload.priority ++ "\n")  else "") ++ (if (payload.message?) ("Msg:" ++ payload.message)  else ""),
+	From: p('twilio.phone.number'),
+	To: payload.recipient
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<twilio-connector:send-message doc:name="Send SMS" doc:id="9744aae0-045f-4877-a158-a6e04c791aee" config-ref="Twilio_Connector_Config" account-sid="${twilio.account.sid}">
+		</twilio-connector:send-message>
+	</sub-flow>
+</mule>
