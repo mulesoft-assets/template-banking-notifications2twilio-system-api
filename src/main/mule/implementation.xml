@@ -12,7 +12,7 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
 http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd
 http://www.mulesoft.org/schema/mule/twilio-connector http://www.mulesoft.org/schema/mule/twilio-connector/current/mule-twilio-connector.xsd">
     <flow name="postNotificationsFlow" doc:id="a3758b7f-5820-4832-af84-60eb5baa2d04">
-        <ee:transform doc:name="Transform Message"
+        <ee:transform doc:name="Save input data"
             doc:id="11164c72-3c89-46f5-86b8-5d536085ccde">
             <ee:message>
             </ee:message>
@@ -64,7 +64,7 @@ payload ++ "messageToSend" :
 	</sub-flow>
 	<sub-flow name="processSMSSubflow" doc:id="6da6b60c-11a6-4814-9f58-decf45f78792" >
 		<validation:matches-regex doc:name="Matches regex" doc:id="e9249350-ad59-4369-9532-c6bd428648f5" config-ref="Validation_Config" value="#[payload.recipient]" regex="^\+?\d{1,}$" message="Recipient doesn't contain valid phone number."/>
-		<ee:transform doc:name="Transform Message" doc:id="b5303817-213d-4db1-b984-16fa167a101b">
+		<ee:transform doc:name="Prepare sms request" doc:id="b5303817-213d-4db1-b984-16fa167a101b">
 			<ee:message>
 				<ee:set-payload><![CDATA[%dw 2.0
 output application/json
