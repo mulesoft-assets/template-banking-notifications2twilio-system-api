@@ -1,87 +1,80 @@
 # Template Banking Notifications System API
 
-+ [License Agreement](#licenseagreement)
-+ [Use Case](#usecase)
-+ [Considerations](#considerations)
-	* [APIs security considerations](#apissecurityconsiderations)
-+ [Run it!](#runit)
-	* [Running on premise](#runonopremise)
-	* [Running on Studio](#runonstudio)
-	* [Running on Mule ESB stand alone](#runonmuleesbstandalone)
-	* [Running on CloudHub](#runoncloudhub)
-	* [Deploying your Anypoint Template on CloudHub](#deployingyouranypointtemplateoncloudhub)
-	* [Properties to be configured (With examples)](#propertiestobeconfigured)
+Underlying all IT architectures are core systems of records that are often not readily available due to its complexity and connectivity concerns. System APIs provide a means of hiding that complexity from the user while exposing data and providing downstream insulation from any interface changes or rationalization of those systems. This API provides an implementation best practice for a notification service that integrates with multiple systems like Gmail and Twilio and exposes a RESTful interface that triggers a notification.
 
-# License Agreement <a name="licenseagreement"/>
-Note that using this template is subject to the conditions of this [License Agreement](AnypointTemplateLicense.pdf).
-Please review the terms of the license before downloading and using this template. In short, you are allowed to use the template for free with Mule ESB Enterprise Edition, CloudHub, or as a trial in Anypoint Studio.
+## Catalyst Accelerator for Banking & Retail
 
-# Use Case <a name="usecase"/>
+This API is one of many components included in [Catalyst Accelerator for Banking](/exchange/68ef9520-24e9-4cf2-b2f5-620025690913/catalyst-accelerator-for-banking/) and [Catalyst Accelerator for Retail](/exchange/68ef9520-24e9-4cf2-b2f5-620025690913/catalyst-accelerator-for-retail/). It provides organizations with connectivity assets that accelerate project delivery, including pre-built API designs and implementations that support core business processes. 
 
-This API allows to send notifications via e-mail as well as text messages via Twilio based on the input JSON message.
+![534f3649-c2b8-407d-8208-eb91a19efe75-image.png](https://exchange2-file-upload-service-kprod.s3.us-east-1.amazonaws.com:443/534f3649-c2b8-407d-8208-eb91a19efe75-image.png)
 
-# Considerations <a name="considerations"/>
+### License Agreement
 
-To make this Anypoint Template run, there are certain preconditions that must be considered. **Failing to do so could lead to unexpected behavior of the template.**
+Using this template is subject to the conditions of this [License Agreement](https://github.com/mulesoft/template-sfdc2nets-opportunity-aggregation/blob/4.1/AnypointTemplateLicense.pdf). Review the terms of the license before downloading and using this template. In short, you are allowed to use the template for free with Mule Enterprise Edition, CloudHub, or as a trial in Anypoint Studio.
 
-## APIs security considerations <a name="apissecurityconsiderations"/>
-This API is meant to be deployed to CloudHub and managed using the API Platform Manager.
+# Use Case
 
-# Run it! <a name="runit"/>
-Simple steps to get AISP Experience API running.
-See below.
+This API allows to send notifications via email as well as text messages via Twilio based on the input JSON message.
 
-## Running on premise <a name="runonopremise"/>
-In this section we detail the way you should run your Anypoint Template on your computer.
+# Considerations
 
+To get this template to run, there are preconditions to consider. Failing to do so can lead to unexpected behavior of the template.
 
-### Where to Download Anypoint Studio and Mule ESB
-First thing to know if you are a newcomer to Mule is where to get the tools.
+- **APIs security considerations** - Deploy this API on CloudHub and manage using Runtime Manager.
 
-+ You can download Anypoint Studio from this [Location](https://www.mulesoft.com/platform/studio)
-+ You can download Mule ESB from this [Location](https://www.mulesoft.com/platform/soa/mule-esb-open-source-esb)
+## Run Stand Alone
+In this section we detail the way you should run your template on your computer.
 
-### Importing an Anypoint Template into Studio
-Anypoint Studio offers several ways to import a project into the workspace, for instance: 
+### Where to Download Anypoint Studio and the Mule Runtime
 
-+ Anypoint Studio Project from File System
-+ Packaged mule application (.jar)
+If you are new to Mule, download this software:
 
-You can find a detailed description on how to do so in this [Documentation Page](http://www.mulesoft.org/documentation/display/current/Importing+and+Exporting+in+Studio).
+- [Download Anypoint Studio](https://www.mulesoft.com/platform/studio)
+- [Download Mule runtime](https://www.mulesoft.com/lp/dl/mule-esb-enterprise)
 
-### Running on Studio <a name="runonstudio"/>
-Once you have imported you Anypoint Template into Anypoint Studio you need to follow these steps to run it:
+### Import Template in Studio
 
-+ Locate the properties file `mule-<env>.properties`, in src/main/app/resources
-+ Complete all the properties required as per the examples in the section [Properties to be configured](#propertiestobeconfigured)
-+ Once that is done, right click on you Anypoint Template project folder 
-+ Hover you mouse over `"Run as"`
-+ Click on  `"Mule Application"`
+In Studio, click the Exchange X icon in the upper left of the taskbar, log in with your
+Anypoint Platform credentials, search for the template, and click **Open**.
 
-### Running on Mule ESB stand alone <a name="runonmuleesbstandalone"/>
-Complete all properties in one of the property files, for example in [mule.prod.properties](../master/src/main/resources/mule.prod.properties) and run your app with the corresponding environment variable to use it. To follow the example, this will be `mule.env=prod`. 
+### Run in Studio
 
-## Running on CloudHub <a name="runoncloudhub"/>
-While [creating your application on CloudHub](https://docs.mulesoft.com/runtime-manager/hello-world-on-cloudhub) (Or you can do it later as a next step), you need to go to `"Manage Application"` > `"Properties"` to set all environment variables detailed in **Properties to be configured**.
-Follow other steps defined [here](#runonpremise) and once your app is all set and started, there is no need to do anything else.
+After opening your template in Anypoint Studio, follow these steps to run it:
 
-### Deploying your Anypoint Template on CloudHub <a name="deployingyouranypointtemplateoncloudhub"/>
-Mule Studio provides you with really easy way to deploy your Template directly to CloudHub, for the specific steps to do so please check this [link](http://www.mulesoft.org/documentation/display/current/Deploying+Mule+Applications#DeployingMuleApplications-DeploytoCloudHub)
+1. Locate the properties file `mule.dev.properties`, in src/main/resources.
+2. Complete all the properties in the "Properties to Configure" section.
+3. Right click the template project folder.
+4. Hover your mouse over `Run as`.
+5. Click `Mule Application (configure)`.
+6. Inside the dialog, select Environment and set the variable `mule.env` to the value `dev`.
+7. Click `Run`.
 
-## Properties to be configured (With examples) <a name="propertiestobeconfigured"/>
-In order to use this Mule Anypoint Template you need to configure properties (Credentials, configurations, etc.) either in properties file or in CloudHub as Environment Variables. 
+### Run Stand Alone 
 
-Detailed list with examples:
-### Application properties
-+ http.port `8081`
+Complete all properties in one of the property files, for example in mule.prod.properties and run your app with the corresponding environment variable to use it. To follow the example, use `mule.env=prod`. 
 
-### SMTP Services configuration
-+ smtp.host `smtp.gmail.com`
-+ smtp.port `465`
-+ smtp.user `your_username`
-+ smtp.password `your_password`
+## Run in CloudHub
+After adding your application to Runtime Manager, go to Manage Application > Properties to set the environment variables listed in the "Properties to Configure" section.
 
-### Twilio Services configuration
-+ twilio.phone.number `+10000000000`
-+ twilio.account.sid `dnZAVKAsDDOVMK7pHxO7`
-+ twilio.account.auth.token `bJ5P1ELET7ibq2TAHTgB`
+### Deploy in CloudHub
+In Studio, right click your project name in Package Explorer and select Anypoint Platform > Deploy on CloudHub.
+
+## Properties to Configure
+To use this template you need to configure properties (credentials, configurations, etc.) either in a properties file or in Runtime Manager as Environment Variables. 
+
+### Application Properties
+
+- http.port `8081`
+
+### SMTP Services Configuration
+
+- smtp.host `smtp.gmail.com`
+- smtp.port `465`
+- smtp.user `your_username`
+- smtp.password `your_password`
+
+### Twilio Services Configuration
+
+- twilio.phone.number `+10000000000`
+- twilio.account.sid `dnZAVKAsDDOVMK7pHxO7`
+- twilio.account.auth.token `bJ5P1ELET7ibq2TAHTgB`
