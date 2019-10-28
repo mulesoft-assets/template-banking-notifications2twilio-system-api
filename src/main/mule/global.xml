@@ -23,8 +23,7 @@ http://www.mulesoft.org/schema/mule/twilio-connector http://www.mulesoft.org/sch
             port="${http.port}" />
     </http:listener-config>
     <apikit:config name="banking_notifications_system_api-config"
-        raml="banking_notifications_system_api.raml"
-        outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+        outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" api="api/retail_notifications_system_api.raml"/>
 
     <configuration-properties doc:name="Configuration properties"
         doc:id="7305b8b1-e587-4752-acb3-1297d0d1587d" file="common.properties" />
@@ -41,7 +40,9 @@ http://www.mulesoft.org/schema/mule/twilio-connector http://www.mulesoft.org/sch
             port="${smtp.port}" user="${smtp.user}" tlsContext="TLS_Context"
             password="${smtp.password}" />
     </email:smtp-config>
-	<twilio-connector:config name="Twilio_Connector_Config" doc:name="Twilio Connector Config" doc:id="890aa6c5-1bfb-49be-aa39-1d76ff18c658" property_username="${twilio.account.sid}" property_password="${twilio.account.auth.token}"/>
+	<twilio-connector:config name="Twilio_Connector_Config" doc:name="Twilio Connector Config" doc:id="890aa6c5-1bfb-49be-aa39-1d76ff18c658" property_username="${twilio.account.sid}" property_password="${twilio.account.auth.token}">
+			<twilio-connector:connection />
+	</twilio-connector:config>
 	<validation:config name="Validation_Config" doc:name="Validation Config" doc:id="3be7ace7-f44e-42d2-b648-50fdeadbc4e4" />
-    
+   
 </mule>

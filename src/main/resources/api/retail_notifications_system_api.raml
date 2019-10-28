@@ -1,5 +1,5 @@
 #%RAML 1.0
-title: Banking Notifications System API
+title: Retail Notifications System API
 version: v2.0
 baseUri: http://localhost:8081/api
 
@@ -9,25 +9,25 @@ types:
     properties:
       id?: 
         type: string | integer
-        description: identifier of notification
+        description: Identifier of notification
       type:
         type: string
         enum: [SMS, EMAIL]
-        description: type of notification
+        description: Type of notification
       message?: 
         type: string | integer
-        description: information for recipient
+        description: Information for recipient
       subject?: 
         type: string | integer
-        description: subject of message
+        description: Subject of message
       priority:
         type: string
         enum: [ URGENT, CRITICAL, MAJOR, MINOR, TRIVIAL]
         required: false
-        description: priority for notification
+        description: Priority for notification
       recipient: 
         type: string | integer
-        description: recipient of notification
+        description: Recipient of notification
 
 
 /notifications:
@@ -41,6 +41,6 @@ types:
     body:
       application/json:
         type: Notification
-        example: !include examples/post_notification_example.raml
+        example: !include examples/notifications-request.yaml
     responses:
       200:
