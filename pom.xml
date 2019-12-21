@@ -15,7 +15,7 @@
 	<name>template-banking-notifications2twilio-system-api</name>
 
 	<properties>
-		<mule.tools.version>1.2</mule.tools.version>
+		<mule.tools.version>1.8</mule.tools.version>
 		<twilio.version>1.4</twilio.version>
 		<skip.readme.generation>true</skip.readme.generation>
 	</properties>
