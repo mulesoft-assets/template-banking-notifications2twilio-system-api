@@ -16,7 +16,7 @@
 
 	<properties>
 		<mule.tools.version>1.2</mule.tools.version>
-		<twilio.version>1.4</twilio.version>
+		<twilio.version>2.0.2</twilio.version>
 		<skip.readme.generation>true</skip.readme.generation>
 	</properties>
 
